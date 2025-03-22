@@ -1,10 +1,5 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/generate-header.ts",
-      "use": "@vercel/og"
-    }
-  ]
+  "buildCommand": "yarn build",
+  "outputDirectory": ".next",
+  "framework": "nextjs"
 }
-
