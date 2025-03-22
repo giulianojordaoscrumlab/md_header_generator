@@ -1,0 +1,19 @@
+{
+  "name": "markdown-header-generator",
+  "author": {
+    "name": "Ketlen e Giuliano Jordao",
+    "email": "desenvolvimento@scrumlab.com.br",
+    "url": "https://scrumlab.com.br"
+  },
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@vercel/og": "^1.0.0",
+    "next": "^15.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.11",
+    "@types/react": "^19.0.12"
+  }
+}
