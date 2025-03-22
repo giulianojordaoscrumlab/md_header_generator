@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node-terminal",
+        "name": "Debug Next.js (Edge API)",
+        "request": "launch",
+        "command": "yarn dev"
+      }
+    ]
+  }
+  

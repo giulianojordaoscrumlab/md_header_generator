@@ -1,23 +1,26 @@
-import { NextRequest } from 'next/server';
 import { ImageResponse } from '@vercel/og';
-import { getAvatarPosition } from '../lib/utils';
-import * as React from 'react';
+import { NextRequest } from 'next/server';
+import { getAvatarPosition } from '../../lib/utils';
+import React from 'react';
 
-export const config = {
-  runtime: 'edge',
-};
+export const runtime = 'edge'; // obrigatório para Vercel Edge
 
-export default async function handler(req: NextRequest) {
+export async function GET(req: NextRequest): Promise<Response> {
   const { searchParams } = new URL(req.url);
+  const origin = req.nextUrl.origin; // origem para montar URLs absolutas
 
-  const avatarUrl = searchParams.get('avatarPicture');
-  const backgroundUrl = searchParams.get('background');
+  const originalAvatar = searchParams.get('avatarPicture');
+  const originalBackground = searchParams.get('background');
   const avatarPosition = searchParams.get('avatarPosition') || 'bottomLeft';
   const maxHeight = parseInt(searchParams.get('maxHeight') || '216');
 
-  if (!avatarUrl || !backgroundUrl) {
+  if (!originalAvatar || !originalBackground) {
     return new Response('Missing required parameters', { status: 400 });
   }
+
+  // Usa proxy interno para contornar proteção de hotlinking
+  const avatarUrl = `${origin}/api/proxy?url=${encodeURIComponent(originalAvatar)}`;
+  const backgroundUrl = `${origin}/api/proxy?url=${encodeURIComponent(originalBackground)}`;
 
   const avatarSize = Math.floor(maxHeight * 0.35);
   const position = getAvatarPosition(avatarPosition, avatarSize, 1920, maxHeight);
@@ -34,8 +37,8 @@ export default async function handler(req: NextRequest) {
         },
       },
       [
+        // Background
         React.createElement('img', {
-          key: 'bg',
           src: backgroundUrl,
           style: {
             width: '100%',
@@ -44,10 +47,11 @@ export default async function handler(req: NextRequest) {
             borderRadius: '8px',
           },
         }),
+
+        // Avatar com borda circular
         React.createElement(
           'div',
           {
-            key: 'avatar-container',
             style: {
               position: 'absolute',
               left: position.x,
@@ -59,19 +63,22 @@ export default async function handler(req: NextRequest) {
               overflow: 'hidden',
             },
           },
-          React.createElement('img', {
-            src: avatarUrl,
-            style: {
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            },
-          })
+          [
+            React.createElement('img', {
+              src: avatarUrl,
+              style: {
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              },
+            }),
+          ]
         ),
+
+        // Marca d'água
         React.createElement(
           'div',
           {
-            key: 'watermark',
             style: {
               position: 'absolute',
               bottom: 10,
@@ -82,14 +89,12 @@ export default async function handler(req: NextRequest) {
               fontSize: '18px',
               fontWeight: 600,
               color: '#000',
-              display: 'flex',
-              gap: '2px',
             },
           },
           [
             'MDHeaderGenerator by ',
-            React.createElement('span', { style: { color: 'black' }, key: 'Scrum' }, 'Scrum'),
-            React.createElement('span', { style: { color: 'orange' }, key: 'Lab' }, 'Lab'),
+            React.createElement('span', { style: { color: 'black' } }, 'Scrum'),
+            React.createElement('span', { style: { color: 'orange' } }, 'Lab'),
           ]
         ),
       ]
